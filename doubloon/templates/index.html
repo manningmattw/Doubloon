@@ -1,0 +1,352 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block header %}
+<link rel="stylesheet" href="https://cdn.datatables.net/1.10.19/css/jquery.dataTables.min.css">
+{% endblock %}
+{% block content %}
+<div class="modal" id="buy_currency_modal" tabindex="-1" role="dialog">
+  <form method="post">{% csrf_token %}
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Buy Currency</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <label class="sr-only" for="market">Market</label>
+          <div class="input-group mb-2">
+            <div class="input-group-prepend">
+              <div class="input-group-text form-control-lg">Market</div>
+            </div>
+            <input type="text" class="form-control form-control-lg" id="market" name="market" value="">
+          </div>
+          <label class="sr-only" for="amount">Amount</label>
+          <div class="input-group mb-2">
+            <div class="input-group-prepend">
+              <div class="input-group-text form-control-lg">Amount</div>
+            </div>
+            <input type="text" class="form-control form-control-lg" id="amount" name= "amount" value="{{ available }}" placeholder="{{ available }}">
+          </div>
+          <div class="input-group mb-2">
+            <div class="input-group-prepend">
+              <label class="input-group-text form-control-lg">Price</label>
+            </div>
+            <div class="form-control form-control-lg">
+              <div class="radio">
+                <label class="radio-inline control-label">
+                  <input type="radio" id="price_ask" name="price" value="ask" checked="">
+                  Ask
+                </label>
+              </div>
+              <div class="radio">
+                <label class="radio-inline control-label">
+                  <input type="radio" id="price_bid" name="price" value="bid">
+                  Bid
+                </label>
+              </div>
+              <div class="radio">
+                <label class="radio-inline control-label">
+                  <input class="input-group-prepend" type="radio" id="price_custom" name="price" value="Custom: ">
+                  Custom: 
+                  <input placeholder="Price" type="text" class="form-control form-control-lg" id="price_actual" name="price_actual">
+                </label>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="submit" name="buy_currency" type="button" class="btn btn-success">Buy</button>
+          <button type="button" class="btn btn-danger" data-dismiss="modal">Cancel</button>
+        </div>
+      </div>
+    </div>
+  </form>
+</div>
+<div class="container py-3" style="background-color: #CCC; border: solid 1px #333;">
+  <div class="row px-3">
+    <div class="col-xs-4 col-md-4 pb-3">
+      <div class="row">
+        <div class="col-xs-12 col-md-12">
+          <div class="card">
+            <div class="card-header bg-dark text-white text-left">
+              <div class="float-left"><h5><i class="fas fa-chart-line"></i></h5></div>
+              <div class="float-left pl-2"><h5>Valuation</h5></div>
+            </div>
+            <div class="card-body">
+              <ul class="list-group">
+                {% for item in price %}
+                <li class="list-group-item">
+                  <div class="float-left" style='width: 24px;'><img class="img-fluid" src="{% static item.img %}"></div>
+                  <div class="float-left pl-3">{{ item.currency }}</div>
+                  <div class="float-right">{{ item.price }}</div>
+                </li>
+                {% endfor %}
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="row pt-3">
+        <div class="col-xs-12 col-md-12">
+          <div class="card">
+            <div class="card-header bg-dark text-white text-left">
+              <div class="float-left"><h5><i class="fas fa-money-bill-wave""></i></h5></div>
+              <div class="float-left pl-2"><h5>Market Wealth</h5></div>
+            </div>
+            <div class="card-body">
+              <ul class="list-group">
+                <li class="list-group-item">
+                  <div class="float-left" style="width: 24px;"><img class="img-fluid" src="{% static wealth.base_img %}"></div>
+                  <div class="float-left pl-3">{{ wealth.base_currency }}</div>
+                  <div class="float-right">{{ wealth.base }}</div>
+                </li>
+                <li class="list-group-item">
+                  <div class="float-left" style="width: 24px;"><img class="img-fluid" src="{% static wealth.safety_img %}"></div>
+                  <div class="float-left pl-3">{{ wealth.safety_currency }}</div>
+                  <div class="float-right">{{ wealth.safety }}</div>
+                </li>
+                {% for item in wealth.currencies %}
+                <li class="list-group-item">
+                  <div class="row">
+                    <div class='col-xs-12 col-md-12'>
+                      <div class="float-left" style='width: 24px;'><img class="img-fluid" src="{% static item.img %}"></div>
+                      <div class="float-left pl-3">{{ item.currency }}</div>
+                    </div>
+                  </div>
+                  <div class="row pt-3">
+                    <div class='col-xs-12 col-md-12'>
+                      {% if item.gain_is_negative %}
+                      <div class="float-left" style="width: 24px; color: red;"> <h5><i class="fas fa-arrow-down"></h5></i></div>
+                      <div class="float-left pl-3">Gain/Loss</div>
+                      <div class="float-right" style="color: red;">{{ item.gain }}</div>
+                      {% else %}
+                      <div class="float-left" style="width: 24px; color: green;"> <h5><i class="fas fa-arrow-up"></h5></i></div>
+                      <div class="float-left pl-3">Gain/Loss</div>
+                      <div class="float-right" style="color: green;">{{ item.gain }}</div>
+                      {% endif %}
+                    </div>
+                  </div>
+                  <div class="row pt-1">
+                    <div class="col-xs-12 col-md-12">
+                      {% if item.met_goal %}
+                      <div class="float-left" style="width: 24px; color: green;"> <h5><i class="fas fa-check"></i></i></h5></i></div>
+                      <div class="float-left pl-3">Goal</div>
+                      <div class="float-right" style="color: green;">{{ item.goal }}</div>
+                      {% else %}
+                      <div class="float-left" style="width: 24px; color: red;"> <h5><i class="fas fa-times"></i></h5></i></div>
+                      <div class="float-left pl-3">Goal</div>
+                      <div class="float-right" style="color: red;">{{ item.goal }}</div>
+                      {% endif %}
+                    </div>
+                  </div>
+                </li>
+                {% endfor %}
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="row pt-3">
+        <div class="col-xs-12 col-md-12">
+          <div class="card">
+            <div class="card-header bg-dark text-white text-left">
+              <div class="float-left"><h5><i class="fas fa-exclamation-circle"></i></h5></div>
+              <div class="float-left pl-2"><h5>Trade Actions</h5></div>
+            </div>
+            <div align="center" class="card-body">
+              {% if allowed > 0 %}
+              <div class="py-2">
+                <button class="btn btn-success" data-toggle="modal" data-target="#buy_currency_modal">Buy Currency</button>
+              </div>
+              {% endif %}
+              {% if trade_actions %}
+              {% for item in current_crypto %}
+              {% if not item.is_pending %}
+              <div class="py-2">
+                <form method="post">
+                  {% csrf_token %}
+                  <button type="submit" name="force_sell" class="btn btn-danger">Force Sell {{ item.market_currency }}</button>
+                  <input type="hidden" id="market" name="market" value="{{ item.market }}">
+                </form>
+              </div>
+              {% endif %}
+              {% endfor %}
+              {% for item in cancel_buttons %}
+              <div class="py-2">
+                <form method="post">
+                  {% csrf_token %}
+                  <button type="submit" name="cancel_order" class="btn btn-warning">Cancel Order {{ item.currency }}</button>
+                  <input type="hidden" id="uuid" name="uuid" value="{{ item.uuid }}">
+                </form>
+              </div>
+              {% endfor %}
+              {% else %}
+              <div class="py-2">
+                No current actions available at this time.
+              </div>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="row pt-3">
+        <div class="col-xs-12 col-md-12">
+          <div class="card">
+            <div class="card-header bg-dark text-white text-left">
+              <div class="float-left"><h5><i class="fas fa-wallet"></i></h5></div>
+              <div class="float-left pl-2"><h5>Wallet</h5></div>
+            </div>
+            <div class="card-body">
+              <ul class="list-group">
+                {% for item in wallet %}
+                <li class="list-group-item">
+                  <div class="float-left" style='width: 24px;'><img class="img-fluid" src="{% static item.img %}"></div>
+                  <div class="float-left pl-3">{{ item.currency }}</div>
+                  <div class="float-right">{{ item.balance_str }}</div>
+                </li>
+                {% endfor %}
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-xs-8 col-md-8">
+      <div class="row">
+        <div class="col-xs-12 col-md-12">
+          <div class="card">
+            <div class="card-header bg-dark text-white text-left">
+              <div class="float-left"><h5><i class="fab fa-react"></i></h5></div>
+              <div class="float-left pl-2"><h5>Current Cryptocurrency</h5></div>
+            </div>
+            <div class="card-body">
+              <div class="table-responsive">
+                <table id="current_crypto" class="table table-bordered" style="width: 100%;">
+                  <thead class="bg-dark text-white">
+                    <tr>
+                      <th>Market Currency</th>
+                      <th>Market Open</th>
+                      <th>Quantity</th>
+                      <th><i class="fab fa-bitcoin""></i> Open</th>
+                      <th>Purchase At</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                  {% for item in current_crypto %}
+                    <tr{% if item.is_pending %} class="table-warning"{% endif %}>
+                      <td>
+                        <div class="float-left" style='width: 24px;'><img class="img-fluid" src="{% static item.market_img %}"></div>
+                        <div class="float-left pl-3"><a href="https://bittrex.com/Market/Index?MarketName={{ item.market }}" target="_blank">{{ item.market_currency }}</a></div>
+                      </td>
+                      <td align="center">{{ item.market_buy_price }}</td>
+                      <td align="center">{{ item.market_quantity }}</td>
+                      <td align="center">{{ item.base_cost }}</td>
+                      <td>{{ item.opened|date:"N j, Y  H:i:s" }}</td>
+                    </tr>
+                  </tbody>
+                  {% endfor %}
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="row pt-3">
+        <div class="col-xs-12 col-md-12">
+          <div class="card">
+            <div class="card-header bg-dark text-white text-left">
+              <div class="float-left"><h5><i class="fas fa-history""></i></h5></div>
+              <div class="float-left pl-2"><h5>Order History</h5></div>
+            </div>
+            <div class="card-body">
+              <div class="table-responsive">
+                <table id="order_history" class="table table-striped table-bordered display" style="width: 100%;">
+                  <thead class="bg-dark text-white">
+                    <tr>
+                      <th>Market</th>
+                      <th>Completed</th>
+                      <th>Gain/Loss</th>
+                      <th><i class="fab fa-bitcoin""></i> Start</th>
+                      <th><i class="fab fa-bitcoin""></i> Finish</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {% for order in closed_orders %}
+                    <tr>
+                      <td>
+                        <div class="float-left" style='width: 24px;'><img class="img-fluid" src="{% static order.market_img %}"></div>
+                        <div class="float-left pl-3"><a href="https://bittrex.com/Market/Index?MarketName={{ order.market }}" target="_blank">{{ order.market }}</a></div>
+                      </td>
+                      <td>{{ order.closed|date:"N j, Y  H:i:s" }}</td>
+                      <td align="center" class="table-{% if order.is_negative %}danger{% else %}success{% endif %}">{{ order.gain_loss }}%</td>
+                      <td>{{ order.base_cost }}</td>
+                      <td>{{ order.base_profit }}</td>
+                    </tr>
+                    {% endfor %}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="row pt-3">
+        <div class="col-xs-12 col-md-12">
+          <div class="card">
+            <div class="card-header bg-dark text-white text-left">
+              <div class="float-left"><h5><i class="fas fa-search""></i></h5></div>
+              <div class="float-left pl-2"><h5>Recent Analyzed Markets</h5></div>
+            </div>
+            <div class="card-body">
+              <div class="table-responsive">
+                <table id="analyzed_markets" class="table table-striped table-bordered dt-responsive display" style="width: 100%;">
+                  <thead class="bg-dark text-white">
+                    <tr>
+                      <th style="width: 165px;">Timestamp</th>
+                      <th style="width: 110px;">Market</th>
+                      <th>Rating</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {% for analysis in analyses %}
+                    <tr>
+                      <td>{{ analysis.timestamp|date:"N j, Y  H:i:s" }}</td>
+                      <td>
+                        <div class="float-left" style='width: 24px;'><img class="img-fluid" src="{% static analysis.market_img %}"></div>
+                        <div class="float-left pl-3"><a href="https://bittrex.com/Market/Index?MarketName={{ analysis.market }}" target="_blank">{{ analysis.market }}</a></div>
+                      </td>
+                      <td class="table-{% if analysis.rating == 'Bad' %}danger{% else %}success{% endif %}">{{ analysis.rating }}</td>
+                    </tr>
+                    {% endfor %}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+{% block post_scripts %}
+<script type="text/javascript" src="https://code.jquery.com/jquery-3.3.1.js"></script>
+<script type="text/javascript" src="https://cdn.datatables.net/1.10.19/js/jquery.dataTables.min.js"></script>
+<script type="text/javascript">
+  $(document).ready( function() {
+    $('#order_history').dataTable( {
+      "paging": true,
+      "iDisplayLength": 10,
+      "ordering": false,
+    } );
+    $('#analyzed_markets').dataTable( {
+      "paging": true,
+      "iDisplayLength": 10,
+      "ordering": false,
+    } );
+  } )
+</script>
+{% endblock %}

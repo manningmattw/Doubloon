@@ -1,0 +1,40 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  {% block title %}<title>Doubloon - Automated Cryptocurrency Trade System</title>{% endblock %}
+  <link rel="shortcut icon" type="image/png" href="{% static 'img/favicon.ico' %}"/>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  {% load bootstrap4 %}
+  {% bootstrap_css %}
+  {% bootstrap_messages %}
+  {% bootstrap_javascript jquery='full' %}
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.1.0/css/all.css" integrity="sha384-lKuwvrZot6UHsBSfcMvOkWwlCMgc0TaWr+30HWe3a4ltaBwTZhyTEggF5tJv8tbt" crossorigin="anonymous">
+  {% block header %}{% endblock %}
+  {% load static %}
+</head>
+<body class="bg-success">
+  {% block menu %}
+  <div class="container">
+    <div class="row bg-dark text-white p-3">
+      <div class="col-sm-4">
+        <div class="float-left"><h4><i class="fas fa-coins"></i></h4></div>
+        <div class="float-left px-3"><h4>Doubloons</h4></div>
+      </div>
+      <div class="col-sm-4">
+        <div align="center">{{ last_refresh }}</div>
+      </div>
+      <div class="col-sm-4">
+        <div class="float-right"><a href="admin/logout/"><i class="fas fa-sign-out-alt"></i> Sign Out</a></div>
+        <div class="float-right pr-5"><a href="admin/"><i class="fas fa-toolbox"></i> Admin</a></div>
+        <div class="float-right pr-5"><a href="{% url "index" %}"><i class="fas fa-sync"></i> Refresh</a></div>
+      </div>
+    </div>
+  </div>
+  {% endblock %}
+  {% block content %}{% endblock %}
+  {% block post_scripts %}{% endblock %}
+</body>
+</html>

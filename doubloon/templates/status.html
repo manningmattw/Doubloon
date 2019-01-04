@@ -1,0 +1,103 @@
+<html>
+	<head>
+		<meta http-equiv="refresh" content="30">
+		<title>{{ current_symbol }} - ${{ current_value|floatformat:2 }}</title>
+	</head>
+	<body>
+		<p>Last Update: {{ last_update }}</p>
+		<table>
+			<tr>
+				<td style="width: 80px;">STATUS</td>
+				<td>CURRENCY</td>
+			</tr>
+			<tr>
+				<td>Current</td>
+				<td>{{ current_symbol }}</td>
+			</tr>
+		</table>
+		<br />
+		<table>
+			<tr>
+				<td style="width: 120px;">PRICE POINT</td>
+				<td style="width: 120px;">TOTAL VALUE</td>
+				<td>PRICE PER UNIT</td>
+			</tr>
+			<tr>
+				<td>Current</td>
+				<td>{{ current_value|floatformat:2 }}</td>
+				<td>{% widthratio current_value quantity 1 %}</td>
+			</tr>
+			<tr>
+				<td>Optimal</td>
+				<td>{{ optimal_value|floatformat:2 }}</td>
+				<td>{% widthratio optimal_value quantity 1 %}</td>
+			</tr>
+{% if depreciation %}
+			<tr>
+				<td>Depreciated</td>
+				<td>{{ depreciated_value|floatformat:2 }}</td>
+				<td>{% widthratio depreciated_value quantity 1 %}</td>
+			</tr>
+{% endif %}
+			<tr>
+				<td>Break Even</td>
+				<td>{{ break_even_value|floatformat:2 }}</td>
+				<td>{% widthratio break_even_value quantity 1 %}</td>
+			</tr>
+{% if enable_gutter %}
+			<tr>
+				<td>Gutter</td>
+				<td>{{ gutter_value|floatformat:2 }}</td>
+				<td>{% widthratio gutter_value quantity 1 %}</td>
+			</tr>
+{% endif %}
+		</table>
+{% if stagnation or enable_gutter or enable_down %}
+		<br />
+		<table>
+			<tr>
+				<td style="width: 140px;">COUNTERS</td>
+				<td style="width: 100px;">CURRENT</td>
+				<td>MAXIMUM</td>
+			</tr>
+	{% if enable_down and down_ticks != 0 %}
+			<tr>
+				<td>Downward Ticks</td>
+				<td>{{ down_ticks }}</td>
+				<td>{{ max_down_ticks }}</td>
+			</tr>
+	{% endif %}
+	{% if stagnation %}
+			<tr>
+				<td>Stagnant Minutes</td>
+				<td>{{ minutes_elapsed }}</td>
+				<td>{{ stagnant_minutes }}</td>
+			</tr>
+	{% endif %}
+	{% if enable_gutter and gutter_ticks != 0 %}
+			<tr>
+				<td>Gutter Ticks</td>
+				<td>{{ gutter_ticks }}</td>
+				<td>{{ max_gutter_ticks }}</td>
+			</tr>
+	{% endif %}
+		</table>
+{% endif %}
+		<br />
+		<table style="width: 90%;">
+			<tr>
+				<td style="width: 200px;">LOG TIME</td>
+				<td>MESSAGE</td>
+			</tr>
+
+{% if has_logs %}
+	{% for log in logs %}
+			<tr>
+				<td>{{ log.timestamp }}</td>
+				<td>{{ log.message }}</td>
+			</tr>
+	{% endfor %}
+{% endif %}
+		</table>
+	</body>
+</html>
